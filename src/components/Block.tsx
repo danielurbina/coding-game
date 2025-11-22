@@ -62,7 +62,7 @@ export const Block: React.FC<BlockProps> = ({ instruction }) => {
         "w-auto min-w-[90px] max-w-[140px] md:w-full md:max-w-none md:min-w-0",
         getBlockColor(instruction.type),
         isActive && "ring-4 ring-green-400 z-20",
-        isSelected && "ring-4 ring-white z-10"
+        isSelected && "ring-4 ring-yellow-400 ring-offset-2 ring-offset-white z-10"
       )}
     >
       <div className="flex items-center gap-2 p-2 md:p-3">
@@ -92,6 +92,6 @@ export const Block: React.FC<BlockProps> = ({ instruction }) => {
             ))}
         </div>
       )}
-    </Reorder.Item>
+    </motion.div>
   );
 };
