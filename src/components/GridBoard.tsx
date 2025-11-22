@@ -46,19 +46,19 @@ const Tile = ({ type, x, y, isCollected }: { type: TileType, x: number, y: numbe
     const isDark = (x + y) % 2 === 1;
     return (
         <div className={clsx(
-            "w-10 h-10 sm:w-12 sm:h-12 rounded-md flex items-center justify-center relative",
+            "w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-md flex items-center justify-center relative",
             type === 'WALL' ? "bg-slate-600 shadow-lg" : isDark ? "bg-white/40" : "bg-white/20",
             type === 'HOLE' && "bg-black rounded-full scale-75 ring-4 ring-black/20"
         )}>
-            {type === 'START' && <div className="w-3 h-3 bg-green-400 rounded-full opacity-50" />}
-            {type === 'END' && <Flag className="text-red-500 fill-red-500 animate-bounce-slight" />}
+            {type === 'START' && <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full opacity-50" />}
+            {type === 'END' && <Flag className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 fill-red-500 animate-bounce-slight" />}
             {type === 'STAR' && !isCollected && (
                 <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
                 >
-                    <Star className="text-yellow-400 fill-yellow-400 drop-shadow-md" />
+                    <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400 drop-shadow-md" />
                 </motion.div>
             )}
             {type === 'WALL' && (
@@ -69,24 +69,7 @@ const Tile = ({ type, x, y, isCollected }: { type: TileType, x: number, y: numbe
 };
 
 const Player = ({ x, y, dir, rows, cols }: { x: number, y: number, dir: Direction, rows: number, cols: number }) => {
-    // Calculate position based on grid index
-    // Since the grid is rendered with gap-1 and padding, we need to match that.
-    // Actually, it's easier to position absolute within the grid container, but we rendered tiles.
-    // We can overlay the player on top using absolute positioning relative to the grid container.
-    // BUT the grid container size varies.
-    // Simplest way: Render player INSIDE the grid structure? No, it moves between cells.
-    // Better: Render player as a sibling to the grid rows, but we need exact pixel coords.
-    // OR: Render player in a specialized grid cell that spans everything? No.
-    
-    // Let's use CSS Grid for positioning the player wrapper!
-    // The wrapper covers the whole grid area.
-    
-    // Position Logic:
-    // x, y are 0-indexed.
-    // We can use `transform: translate(x * size, y * size)` but we need to know the size.
-    
-    // Alternative: Use a separate grid purely for the player that overlays perfectly.
-    
+    // ... code omitted ...
     return (
         <div 
             className="absolute inset-0 pointer-events-none"
@@ -96,7 +79,8 @@ const Player = ({ x, y, dir, rows, cols }: { x: number, y: number, dir: Directio
                 gridTemplateRows: `repeat(${rows}, 1fr)`,
                 padding: '0.5rem', // Match p-2 (0.5rem) of grid container
                 gap: '0.25rem', // Match gap-1 (0.25rem)
-                width: 'max-content', // Ensure it matches the inner grid
+                width: '100%', // Ensure it matches the inner grid width
+                height: '100%', // Ensure it matches the inner grid height
                 margin: 'auto' // Center it
             }}
         >
@@ -128,15 +112,12 @@ const Robot = ({ dir }: { dir: Direction }) => {
         <motion.div 
             animate={{ rotate: rotation[dir] }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="w-10 h-10 bg-white rounded-xl shadow-xl border-2 border-gray-200 flex items-center justify-center relative"
+            className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white rounded-xl shadow-xl border-2 border-gray-200 flex items-center justify-center relative"
         >
             {/* Eyes */}
-            <div className="absolute top-2 flex gap-2">
-                <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
-                <div className="w-2 h-2 bg-black rounded-full animate-pulse delay-75" />
+            <div className="absolute top-1.5 sm:top-2 flex gap-1 sm:gap-2">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-black rounded-full animate-pulse" />
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-black rounded-full animate-pulse delay-75" />
             </div>
             {/* Body */}
-            <div className="w-full h-full bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-xl opacity-20 absolute inset-0" />
-        </motion.div>
-    );
-};
+
