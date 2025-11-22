@@ -13,6 +13,7 @@ export const GameLoop = () => {
   
   const runtimeRef = useRef<GameRuntime | null>(null);
   const timerRef = useRef<number | null>(null);
+  const timeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (isPlaying && !isPaused) {
@@ -20,8 +21,6 @@ export const GameLoop = () => {
       if (!runtimeRef.current) {
         const level = levels.find(l => l.id === currentLevelId);
         if (!level) return;
-        // We use the INITIAL start state from level, NOT the current player state (which might be moved already? No, runGame resets it).
-        // Actually, runGame resets playerState to level.start.
         runtimeRef.current = new GameRuntime(code, level, level.start);
       }
 
@@ -41,17 +40,19 @@ export const GameLoop = () => {
             if (timerRef.current) clearInterval(timerRef.current);
             runtimeRef.current = null;
             
-            if (result.status === 'COMPLETED') {
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
-                useGameStore.setState({ gameStatus: 'WON', isPlaying: false });
-                // Unlock next level? Handled in Overlay
-            } else {
-                useGameStore.setState({ gameStatus: 'LOST', error: result.message || "Try again!", isPlaying: false });
-            }
+            // Delay result to allow animation to finish
+            timeoutRef.current = window.setTimeout(() => {
+                if (result.status === 'COMPLETED') {
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                    useGameStore.setState({ gameStatus: 'WON', isPlaying: false });
+                } else {
+                    useGameStore.setState({ gameStatus: 'LOST', error: result.message || "Try again!", isPlaying: false });
+                }
+            }, 800);
         }
 
       }, executionSpeed);
@@ -60,6 +61,11 @@ export const GameLoop = () => {
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
+      // Do not clear runtimeRef here if just paused?
+      // Current logic: stopGame sets isPlaying=false.
+      // If paused, isPaused=true.
+      // If strictly stopped, we might want to reset runtime?
+      // The store handles 'resetLevel' which resets isPlaying.
       if (!isPlaying) {
           runtimeRef.current = null;
       }
@@ -67,6 +73,7 @@ export const GameLoop = () => {
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [isPlaying, isPaused, currentLevelId, code, executionSpeed]); // dependencies
 

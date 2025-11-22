@@ -22,9 +22,9 @@ export const GridBoard: React.FC = () => {
   const cols = grid[0].length;
 
   return (
-    <div className="relative p-4 flex justify-center items-center bg-blue-50 rounded-2xl shadow-inner overflow-hidden">
+    <div className="p-4 flex justify-center items-center bg-blue-50 rounded-2xl shadow-inner overflow-hidden">
         <div 
-            className="grid gap-1 bg-blue-200 p-2 rounded-xl"
+            className="relative grid gap-1 bg-blue-200 p-2 rounded-xl"
             style={{ 
                 gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
             }}
@@ -34,10 +34,10 @@ export const GridBoard: React.FC = () => {
                     <Tile key={`${x}-${y}`} type={tile} x={x} y={y} isCollected={collectedStars.includes(`${x},${y}`)} />
                 ))
             ))}
+            
+            {/* Player Layer - Inside the grid container for perfect alignment */}
+            <Player x={playerState.x} y={playerState.y} dir={playerState.dir} rows={rows} cols={cols} />
         </div>
-
-        {/* Player Layer */}
-        <Player x={playerState.x} y={playerState.y} dir={playerState.dir} rows={rows} cols={cols} />
     </div>
   );
 };
