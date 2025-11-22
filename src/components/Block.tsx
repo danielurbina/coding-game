@@ -28,7 +28,7 @@ export const BlockLabel = ({ type, loopCount }: { type: InstructionType, loopCou
     case 'TURN_LEFT': return 'Left';
     case 'TURN_RIGHT': return 'Right';
     case 'JUMP': return 'Jump';
-    case 'LOOP': return `Loop ${loopCount}x`;
+    case 'LOOP': return `Loop ${loopCount ?? ''}`;
     case 'IF_STAR': return 'If Star';
     case 'IF_WALL': return 'If Wall';
     default: return type;
