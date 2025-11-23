@@ -1,6 +1,6 @@
 export type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 
-export type TileType = 'EMPTY' | 'WALL' | 'START' | 'END' | 'STAR' | 'HOLE';
+export type TileType = 'EMPTY' | 'WALL' | 'START' | 'END' | 'STAR' | 'HOLE' | 'KEY' | 'DOOR';
 
 export type InstructionType = 
   | 'MOVE_FORWARD' 

@@ -7,7 +7,7 @@ import { Palette } from './components/Palette';
 import { CodeToolbar } from './components/CodeToolbar';
 import { GameLoop } from './components/GameLoop';
 import { Overlay } from './components/Overlay';
-import { Menu, X, Download, Upload, Trophy, Star } from 'lucide-react';
+import { Menu, X, Download, Upload, Trophy, Star, Key } from 'lucide-react';
 import { clsx } from 'clsx';
 
 function App() {
@@ -31,10 +31,23 @@ function App() {
     const currentLevel = levels.find(l => l.id === currentLevelId);
     const instructionCount = getInstructionCount();
     
-    // Calculate max stars for current level (number of 'STAR' tiles)
-    const maxStars = currentLevel?.grid.flat().filter(t => t === 'STAR').length || 0;
-    const starsCollectedCount = collectedStars.length;
-    // Init Level on Mount to ensure playerState is correct
+      // Calculate max stars for current level (number of 'STAR' tiles)
+    
+      const maxStars = currentLevel?.grid.flat().filter(t => t === 'STAR').length || 0;
+    
+      const starsCollectedCount = collectedStars.length;
+    
+      const collectedKeys = useGameStore(s => s.collectedKeys);
+    
+      const keysCount = collectedKeys.length;
+    
+      const maxKeys = currentLevel?.grid.flat().filter(t => t === 'KEY').length || 0;
+    
+    
+    
+      // Init Level on Mount to ensure playerState is correct
+    
+    
   useEffect(() => {
       loadLevel(currentLevelId);
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,6 +119,13 @@ function App() {
                         <div className="flex items-center gap-1 bg-yellow-100 px-2 py-1 rounded text-yellow-700 shrink-0">
                             <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-500 text-yellow-500" />
                             <span className="text-xs font-bold font-mono">{starsCollectedCount}/{maxStars}</span>
+                        </div>
+                    )}
+                    
+                    {maxKeys > 0 && (
+                        <div className="flex items-center gap-1 bg-blue-100 px-2 py-1 rounded text-blue-700 shrink-0">
+                            <Key className="w-3 h-3 sm:w-4 sm:h-4 fill-blue-500 text-blue-500" />
+                            <span className="text-xs font-bold font-mono">{keysCount}/{maxKeys}</span>
                         </div>
                     )}
 

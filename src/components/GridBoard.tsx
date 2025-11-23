@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { levels } from '../data/levels';
 import type { TileType, Direction } from '../types/game';
-import { Star, Flag } from 'lucide-react';
+import { Star, Flag, Key, Lock, DoorOpen } from 'lucide-react';
 import { clsx } from 'clsx';
 
 // const TILE_SIZE = 48; // Pixels - unused, using CSS Grid
@@ -12,6 +12,8 @@ export const GridBoard: React.FC = () => {
   const currentLevelId = useGameStore(s => s.currentLevelId);
   const playerState = useGameStore(s => s.playerState);
   const collectedStars = useGameStore(s => s.collectedStars); // List of "x,y" strings
+  const collectedKeys = useGameStore(s => s.collectedKeys);
+  const openedDoors = useGameStore(s => s.openedDoors);
   
   const level = levels.find(l => l.id === currentLevelId);
   
@@ -31,7 +33,14 @@ export const GridBoard: React.FC = () => {
         >
             {grid.map((row, y) => (
                 row.map((tile, x) => (
-                    <Tile key={`${x}-${y}`} type={tile} x={x} y={y} isCollected={collectedStars.includes(`${x},${y}`)} />
+                    <Tile 
+                        key={`${x}-${y}`} 
+                        type={tile} 
+                        x={x} 
+                        y={y} 
+                        isCollected={collectedStars.includes(`${x},${y}`) || collectedKeys.includes(`${x},${y}`)} 
+                        isOpen={openedDoors.includes(`${x},${y}`)}
+                    />
                 ))
             ))}
             
@@ -42,8 +51,41 @@ export const GridBoard: React.FC = () => {
   );
 };
 
-const Tile = ({ type, x, y, isCollected }: { type: TileType, x: number, y: number, isCollected: boolean }) => {
+const Tile = ({ type, x, y, isCollected, isOpen }: { type: TileType, x: number, y: number, isCollected: boolean, isOpen?: boolean }) => {
     const isDark = (x + y) % 2 === 1;
+    
+    // Door style
+    if (type === 'DOOR') {
+         return (
+             <div className={clsx(
+                "w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded flex items-center justify-center relative transition-all duration-700",
+                isOpen ? "bg-emerald-100/50 ring-2 ring-emerald-200" : "bg-orange-800 shadow-md border-t-2 border-orange-600"
+             )}>
+                <AnimatePresence mode="wait">
+                    {isOpen ? (
+                        <motion.div 
+                            key="open"
+                            initial={{ scale: 0.5, opacity: 0, rotateY: 90 }} 
+                            animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+                            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                        >
+                             <DoorOpen className="w-4 h-4 sm:w-6 sm:h-6 text-emerald-600" />
+                        </motion.div>
+                    ) : (
+                        <motion.div 
+                            key="closed"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                        >
+                            <Lock className="w-3 h-3 sm:w-4 sm:h-4 text-orange-200/80" />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+             </div>
+         );
+    }
+    
     return (
         <div className={clsx(
             "w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded flex items-center justify-center relative",
@@ -58,15 +100,28 @@ const Tile = ({ type, x, y, isCollected }: { type: TileType, x: number, y: numbe
                         <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            exit={{ scale: 0, transition: { delay: 0.3, duration: 0.2 } }}
+                            exit={{ scale: 0, transition: { duration: 0.2 } }}
                         >
                             <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-yellow-400 drop-shadow-md" />
                         </motion.div>
                     )}
                 </AnimatePresence>
             )}
+             {type === 'KEY' && (
+                <AnimatePresence>
+                    {!isCollected && (
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0, transition: { duration: 0.2 } }}
+                        >
+                            <Key className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500 fill-blue-500 drop-shadow-md" />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            )}
             {type === 'WALL' && (
-                <div className="w-full h-full bg-gradient-to-b from-slate-500 to-slate-700 rounded border-t border-white/20" />
+                <div className="w-full h-full bg-linear-to-b from-slate-500 to-slate-700 rounded border-t border-white/20" />
             )}
         </div>
     );
@@ -149,7 +204,7 @@ const Robot = ({ dir }: { dir: Direction }) => {
                 <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-black rounded-full animate-pulse delay-75" />
             </div>
             {/* Body */}
-            <div className="w-full h-full bg-gradient-to-br from-indigo-400 to-indigo-600 rounded opacity-20 absolute inset-0" />
+            <div className="w-full h-full bg-linear-to-br from-indigo-400 to-indigo-600 rounded opacity-20 absolute inset-0" />
         </motion.div>
     );
 };

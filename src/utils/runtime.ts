@@ -7,6 +7,8 @@ export interface StepResult {
   activeInstructionId: string | null;
   status: RuntimeStatus;
   collectedStars: string[]; // "x,y"
+  collectedKeys: string[]; // "x,y"
+  openedDoors: string[]; // "x,y"
   message?: string;
 }
 
@@ -21,6 +23,8 @@ export class GameRuntime {
   private level: Level;
   private playerState: PlayerState;
   private collectedStars: Set<string>;
+  private collectedKeys: Set<string>;
+  private openedDoors: Set<string>;
   private status: RuntimeStatus = 'RUNNING';
 
   constructor(code: Instruction[], level: Level, startState: PlayerState) {
@@ -28,6 +32,8 @@ export class GameRuntime {
     this.level = level;
     this.playerState = { ...startState };
     this.collectedStars = new Set();
+    this.collectedKeys = new Set();
+    this.openedDoors = new Set();
   }
 
   public step(): StepResult {
@@ -140,12 +146,17 @@ export class GameRuntime {
 
     if (tile === 'WALL') {
       // Bonk!
-      // We don't fail, just don't move.
        return this.getResult(id, 'Bonk!');
     } else if (tile === 'HOLE') {
        this.playerState = { ...this.playerState, x: targetX, y: targetY };
        this.status = 'FAILED';
        return this.getResult(id, 'Fell in a hole!');
+    } else if (tile === 'DOOR') {
+        // Door logic
+        if (!this.openedDoors.has(`${targetX},${targetY}`)) {
+             return this.getResult(id, 'Locked! Find a key.');
+        }
+        // If opened, it acts like empty/floor, proceed.
     }
 
     // Move
@@ -166,15 +177,22 @@ export class GameRuntime {
   private handleJump(id: string): StepResult {
     const { x, y, dir } = this.playerState;
     const { dx, dy } = this.getDirOffsets(dir);
-    // Jump moves 2 spaces, skipping the immediate next one (unless it's out of bounds/wall? Jump usually goes OVER things)
+    
+    const midX = x + dx;
+    const midY = y + dy;
     const targetX = x + (dx * 2);
     const targetY = y + (dy * 2);
     
-    // const midX = x + dx;
-    // const midY = y + dy;
-    // const midTile = this.getTile(midX, midY); // Unused for now, maybe check if jumping over wall allowed? Assumed YES.
-
+    const midTile = this.getTile(midX, midY);
     const targetTile = this.getTile(targetX, targetY);
+
+    // Check obstacle (WALL or Closed DOOR)
+    if (midTile === 'WALL') {
+        return this.getResult(id, "Can't jump over walls!");
+    }
+    if (midTile === 'DOOR' && !this.openedDoors.has(`${midX},${midY}`)) {
+        return this.getResult(id, "Can't jump over locked doors!");
+    }
 
     if (targetTile === 'WALL') {
          return this.getResult(id, "Can't jump into a wall!");
@@ -244,17 +262,35 @@ export class GameRuntime {
   private isPathClear(): boolean {
       const { x, y, dir } = this.playerState;
       const { dx, dy } = this.getDirOffsets(dir);
-      const tile = this.getTile(x + dx, y + dy);
-      // Path is clear if it's not a wall and not bounds. 
-      // Holes? Technically a path you can move into (and die), but usually "While Path" implies safe path.
-      // Let's say clear means SAFE to move.
-      return tile !== 'WALL' && tile !== 'BOUNDS' && tile !== 'HOLE';
+      const targetX = x + dx;
+      const targetY = y + dy;
+      const tile = this.getTile(targetX, targetY);
+      
+      // Path is clear if it's not a wall, not bounds, not hole.
+      // Door? If locked, it's not clear. If open, it is.
+      const isLockedDoor = tile === 'DOOR' && !this.openedDoors.has(`${targetX},${targetY}`);
+      
+      return tile !== 'WALL' && tile !== 'BOUNDS' && tile !== 'HOLE' && !isLockedDoor;
   }
 
   private checkCollections() {
       const { x, y } = this.playerState;
-      if (this.getTile(x, y) === 'STAR') {
+      const tile = this.getTile(x, y);
+      if (tile === 'STAR') {
           this.collectedStars.add(`${x},${y}`);
+      } else if (tile === 'KEY') {
+          if (!this.collectedKeys.has(`${x},${y}`)) {
+              this.collectedKeys.add(`${x},${y}`);
+              // Remote Switch Logic: Collecting a key opens doors.
+              // Since we don't have ID linking yet, we open ALL doors.
+              for (let r = 0; r < this.level.grid.length; r++) {
+                  for (let c = 0; c < this.level.grid[0].length; c++) {
+                      if (this.level.grid[r][c] === 'DOOR') {
+                          this.openedDoors.add(`${c},${r}`);
+                      }
+                  }
+              }
+          }
       }
   }
 
@@ -283,6 +319,8 @@ export class GameRuntime {
       activeInstructionId: id,
       status: this.status,
       collectedStars: Array.from(this.collectedStars),
+      collectedKeys: Array.from(this.collectedKeys),
+      openedDoors: Array.from(this.openedDoors),
       message: msg
     };
   }

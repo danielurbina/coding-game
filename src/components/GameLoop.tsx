@@ -14,6 +14,7 @@ export const GameLoop = () => {
   const runtimeRef = useRef<GameRuntime | null>(null);
   const timerRef = useRef<number | null>(null);
   const timeoutRef = useRef<number | null>(null);
+  const visualsTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (isPlaying && !isPaused) {
@@ -29,12 +30,24 @@ export const GameLoop = () => {
 
         const result = runtimeRef.current.step();
         
-        // Update UI
+        // 1. Update Player Movement (Immediate)
         useGameStore.setState({
             playerState: result.playerState,
             activeInstructionId: result.activeInstructionId,
-            collectedStars: result.collectedStars
+            // collectedStars: result.collectedStars, // DELAYED
+            // collectedKeys: result.collectedKeys,   // DELAYED
+            // openedDoors: result.openedDoors        // DELAYED
         });
+
+        // 2. Schedule Visual Updates (Wait for robot to arrive)
+        // Robot animation is 0.5s. We update world state at 0.45s to feel responsive on arrival.
+        visualsTimeoutRef.current = window.setTimeout(() => {
+             useGameStore.setState({
+                collectedStars: result.collectedStars,
+                collectedKeys: result.collectedKeys,
+                openedDoors: result.openedDoors
+             });
+        }, 450);
 
         if (result.status !== 'RUNNING') {
             if (timerRef.current) clearInterval(timerRef.current);
@@ -61,6 +74,11 @@ export const GameLoop = () => {
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
+      if (visualsTimeoutRef.current) {
+          clearTimeout(visualsTimeoutRef.current);
+          visualsTimeoutRef.current = null;
+      }
+      
       // Do not clear runtimeRef here if just paused?
       // Current logic: stopGame sets isPlaying=false.
       // If paused, isPaused=true.
@@ -74,6 +92,7 @@ export const GameLoop = () => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (visualsTimeoutRef.current) clearTimeout(visualsTimeoutRef.current);
     };
   }, [isPlaying, isPaused, currentLevelId, code, executionSpeed]); // dependencies
 

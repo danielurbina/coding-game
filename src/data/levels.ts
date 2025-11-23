@@ -6,6 +6,8 @@ const S: TileType = 'START';
 const F: TileType = 'END'; // Flag/Finish
 const ST: TileType = 'STAR';
 const H: TileType = 'HOLE';
+const K: TileType = 'KEY';
+const D: TileType = 'DOOR';
 
 export const levels: Level[] = [
   {
@@ -247,6 +249,21 @@ export const levels: Level[] = [
       [W, E, W, W, W, W, W, E, W],
       [W, S, ST, E, E, E, E, E, W],
       [W, W, W, W, W, W, W, W, W],
+    ]
+  },
+  {
+    id: 16,
+    name: "Key Master",
+    tutorialText: "Collect the key to open the door! Jump over the hole!",
+    availableBlocks: ['MOVE_FORWARD', 'TURN_LEFT', 'TURN_RIGHT', 'JUMP'],
+    minStars: 0,
+    bestBlockCount: 5,
+    start: { x: 1, y: 1, dir: 'RIGHT' },
+    grid: [
+      [W, W, W, W, W, W, W, W],
+      [W, S, H, K, W, F, W, W],
+      [W, W, W, E, D, E, W, W],
+      [W, W, W, W, W, W, W, W],
     ]
   }
 ];
