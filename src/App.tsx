@@ -7,17 +7,19 @@ import { Palette } from './components/Palette';
 import { CodeToolbar } from './components/CodeToolbar';
 import { GameLoop } from './components/GameLoop';
 import { Overlay } from './components/Overlay';
-import { Menu, X, Download, Upload } from 'lucide-react';
+import { Menu, X, Download, Upload, Trophy } from 'lucide-react';
 import { clsx } from 'clsx';
 
 function App() {
   const currentLevelId = useGameStore(s => s.currentLevelId);
   const loadLevel = useGameStore(s => s.loadLevel);
   const unlockedLevels = useGameStore(s => s.unlockedLevels);
+  const levelRecords = useGameStore(s => s.levelRecords);
   const exportSave = useGameStore(s => s.exportSave);
   const importSave = useGameStore(s => s.importSave);
   // const codeLength = useGameStore(s => s.code.length); // Removed, using total count
   const getInstructionCount = useGameStore(s => s.getInstructionCount);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const code = useGameStore(s => s.code); // Subscribe to code changes to trigger re-render of count
   
   const isMenuOpen = useGameStore(s => s.isMenuOpen);
@@ -82,13 +84,17 @@ function App() {
         <div className="flex-1 bg-white flex flex-col border-l border-gray-200 shadow-xl z-10 max-h-[50vh] md:max-h-full md:w-[400px] md:flex-none">
             <div className="p-3 bg-gray-50 border-b border-gray-200 font-bold text-gray-500 text-sm flex justify-between items-center h-12">
                 <div className="flex items-center gap-2">
-                    <span>YOUR CODE</span>
+                    <span>BLOCKS</span>
                     <span className={clsx(
-                        "text-xs px-2 py-1 rounded font-mono",
-                        currentLevel?.bestBlockCount && instructionCount <= currentLevel.bestBlockCount ? "bg-green-100 text-green-700" : "bg-gray-200"
+                        "text-xs px-2 py-1 rounded font-mono bg-gray-200"
                     )}>
-                        {instructionCount} / {currentLevel?.bestBlockCount || '-'}
+                        {instructionCount}
                     </span>
+                    {levelRecords[currentLevelId] && (
+                        <span className="text-xs text-green-600 font-bold ml-1">
+                            Best: {levelRecords[currentLevelId]}
+                        </span>
+                    )}
                 </div>
                 <CodeToolbar />
             </div>
@@ -109,19 +115,25 @@ function App() {
                   <div className="grid grid-cols-4 gap-4 overflow-y-auto p-2">
                       {levels.map(l => {
                           const isUnlocked = unlockedLevels.includes(l.id);
+                          const record = levelRecords[l.id];
                           return (
                               <button 
                                 key={l.id}
                                 disabled={!isUnlocked}
                                 onClick={() => { loadLevel(l.id); setMenuOpen(false); }}
                                 className={clsx(
-                                    "aspect-square rounded-2xl flex flex-col items-center justify-center gap-2 font-bold transition-all",
+                                    "aspect-square rounded-2xl flex flex-col items-center justify-center gap-1 font-bold transition-all relative",
                                     isUnlocked 
                                         ? l.id === currentLevelId ? "bg-primary text-white ring-4 ring-primary/30" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                                         : "bg-gray-50 text-gray-300 cursor-not-allowed"
                                 )}
                               >
                                   <span className="text-xl">{l.id}</span>
+                                  {record !== undefined && (
+                                      <div className="bg-white/50 px-2 py-0.5 rounded-full text-xs text-black/70 font-mono flex items-center gap-1">
+                                          <Trophy className="w-3 h-3 fill-yellow-400 text-yellow-400" /> {record}
+                                      </div>
+                                  )}
                                   {!isUnlocked && <div className="text-xs">Locked</div>}
                               </button>
                           )

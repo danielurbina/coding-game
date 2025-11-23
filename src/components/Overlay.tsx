@@ -3,43 +3,47 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { levels } from '../data/levels';
 import { RefreshCcw, ArrowRight, Trophy, Menu } from 'lucide-react';
-import { clsx } from 'clsx';
 
 export const Overlay: React.FC = () => {
   const gameStatus = useGameStore(s => s.gameStatus);
   const currentLevelId = useGameStore(s => s.currentLevelId);
   const error = useGameStore(s => s.error);
   const getInstructionCount = useGameStore(s => s.getInstructionCount);
+  const levelRecords = useGameStore(s => s.levelRecords);
   
   const loadLevel = useGameStore(s => s.loadLevel);
   const resetLevel = useGameStore(s => s.resetLevel);
   const setMenuOpen = useGameStore(s => s.setMenuOpen);
   
   const isLastLevel = currentLevelId === levels.length;
-  const currentLevel = levels.find(l => l.id === currentLevelId);
   
   const instructionCount = getInstructionCount();
-  const par = currentLevel?.bestBlockCount || 999;
-  
-  let starsEarned = 1;
-  if (instructionCount <= par) starsEarned = 3;
-  else if (instructionCount <= par + 2) starsEarned = 2;
+  const currentBest = levelRecords[currentLevelId] || Infinity;
+  const isNewRecord = instructionCount < currentBest;
 
   React.useEffect(() => {
       if (gameStatus === 'WON') {
           // Unlock next level
           const nextId = currentLevelId + 1;
            useGameStore.setState(state => {
-               const updates: any = {};
+               const updates: Partial<typeof state> = {};
                if (!state.unlockedLevels.includes(nextId) && levels.find(l => l.id === nextId)) {
                    updates.unlockedLevels = [...state.unlockedLevels, nextId];
                }
-               // Add stars to total? (Simplified logic: just add 1 per win for now to avoid complex per-level tracking refactor)
-               // updates.stars = state.stars + starsEarned; 
+               
+               // Update Level Record
+               const currentRecord = state.levelRecords[currentLevelId] || Infinity;
+               if (instructionCount < currentRecord) {
+                   updates.levelRecords = {
+                       ...state.levelRecords,
+                       [currentLevelId]: instructionCount
+                   };
+               }
+               
                return updates;
            });
       }
-  }, [gameStatus, currentLevelId]);
+  }, [gameStatus, currentLevelId, instructionCount]);
 
   if (gameStatus === 'IDLE' || gameStatus === 'RUNNING') return null;
 
@@ -67,10 +71,7 @@ export const Overlay: React.FC = () => {
                                 transition={{ delay: i * 0.2, type: "spring" }}
                             >
                                 <Trophy 
-                                    className={clsx(
-                                        "w-12 h-12",
-                                        i <= starsEarned ? "text-yellow-400 fill-yellow-400 drop-shadow-lg" : "text-gray-200"
-                                    )} 
+                                    className="w-12 h-12 text-yellow-400 fill-yellow-400 drop-shadow-lg" 
                                 />
                             </motion.div>
                         ))}
@@ -78,12 +79,24 @@ export const Overlay: React.FC = () => {
                     
                     <h2 className="text-3xl font-black text-gray-800">Level Complete!</h2>
                     <div className="bg-gray-50 rounded-xl p-4 w-full">
-                        <p className="text-gray-500 text-sm mb-1">Blocks Used</p>
-                        <p className="text-2xl font-bold text-gray-800">
-                            {instructionCount} <span className="text-gray-400 text-base">/ {par}</span>
-                        </p>
-                        {starsEarned === 3 && (
-                            <p className="text-green-500 font-bold text-sm mt-1">Perfect Score! 🌟</p>
+                        <div className="flex justify-between items-end mb-2">
+                             <p className="text-gray-500 text-sm">Blocks Used</p>
+                             <p className="text-3xl font-bold text-gray-800">{instructionCount}</p>
+                        </div>
+                        <div className="flex justify-between items-center border-t border-gray-200 pt-2">
+                             <p className="text-gray-400 text-xs uppercase font-bold tracking-wider">Personal Best</p>
+                             <p className="text-gray-600 font-bold">
+                                {isNewRecord ? instructionCount : currentBest}
+                             </p>
+                        </div>
+                        {isNewRecord && (
+                            <motion.p 
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="text-green-500 font-bold text-sm mt-2"
+                            >
+                                New Record! 🏆
+                            </motion.p>
                         )}
                     </div>
                     

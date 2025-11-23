@@ -7,6 +7,7 @@ import { levels } from '../data/levels';
 interface GameState {
   currentLevelId: number;
   unlockedLevels: number[];
+  levelRecords: Record<number, number>; // Best block count per level ID
   stars: number; // Total stars across game
   
   // Level State
@@ -84,6 +85,7 @@ export const useGameStore = create<GameState>()(
     (set, get) => ({
       currentLevelId: defaults.currentLevelId,
       unlockedLevels: [1],
+      levelRecords: {},
       stars: 0,
       
       code: [],
@@ -201,8 +203,8 @@ export const useGameStore = create<GameState>()(
       getInstructionCount: () => countInstructions(get().code),
 
       exportSave: () => {
-        const { unlockedLevels, stars, currentLevelId } = get();
-        return btoa(JSON.stringify({ unlockedLevels, stars, currentLevelId }));
+        const { unlockedLevels, stars, currentLevelId, levelRecords } = get();
+        return btoa(JSON.stringify({ unlockedLevels, stars, currentLevelId, levelRecords }));
       },
 
       importSave: (data) => {
@@ -211,7 +213,8 @@ export const useGameStore = create<GameState>()(
           if (parsed.unlockedLevels && typeof parsed.stars === 'number') {
             const newState: Partial<GameState> = { 
                 unlockedLevels: parsed.unlockedLevels, 
-                stars: parsed.stars
+                stars: parsed.stars,
+                levelRecords: parsed.levelRecords || {}
             };
             if (parsed.currentLevelId) {
                 const level = levels.find(l => l.id === parsed.currentLevelId);
@@ -223,7 +226,7 @@ export const useGameStore = create<GameState>()(
             set(newState);
             return true;
           }
-        } catch (e) {}
+        } catch {}
         return false;
       }
     }),
@@ -233,6 +236,7 @@ export const useGameStore = create<GameState>()(
         unlockedLevels: state.unlockedLevels,
         stars: state.stars,
         currentLevelId: state.currentLevelId,
+        levelRecords: state.levelRecords,
         // We persist playerState so that on reload the player isn't briefly in the wrong spot (Level 1 default) 
         // before App.tsx useEffect runs.
         playerState: state.playerState 
