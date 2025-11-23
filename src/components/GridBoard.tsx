@@ -106,16 +106,36 @@ const Player = ({ x, y, dir, rows, cols }: { x: number, y: number, dir: Directio
 };
 
 const Robot = ({ dir }: { dir: Direction }) => {
-    const rotation = {
+    const rotationMap: Record<Direction, number> = React.useMemo(() => ({
         'UP': 0,
         'RIGHT': 90,
         'DOWN': 180,
         'LEFT': 270
-    };
+    }), []);
+
+    // Initialize state with the mapping of the initial direction
+    const [rotationState, setRotationState] = React.useState(rotationMap[dir]);
+
+    // Update rotation when direction changes
+    React.useEffect(() => {
+        const targetBase = rotationMap[dir];
+        const normalize = (angle: number) => ((angle % 360) + 360) % 360;
+        
+        setRotationState(currentRotation => {
+             const currentNormalized = normalize(currentRotation);
+             let delta = targetBase - currentNormalized;
+             
+             // Find shortest path (e.g. 270 -> 0 should be +90, not -270)
+             if (delta > 180) delta -= 360;
+             if (delta < -180) delta += 360;
+             
+             return currentRotation + delta;
+        });
+    }, [dir, rotationMap]);
 
     return (
         <motion.div 
-            animate={{ rotate: rotation[dir] }}
+            animate={{ rotate: rotationState }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
             className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 bg-white rounded-lg shadow-md border border-gray-200 flex items-center justify-center relative"
         >

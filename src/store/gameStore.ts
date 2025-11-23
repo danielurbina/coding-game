@@ -226,7 +226,9 @@ export const useGameStore = create<GameState>()(
             set(newState);
             return true;
           }
-        } catch {}
+        } catch {
+            // ignore
+        }
         return false;
       }
     }),
