@@ -207,7 +207,7 @@ export const levels: Level[] = [
     bestBlockCount: 5,
     start: { x: 1, y: 1, dir: 'RIGHT' },
     grid: [
-      [W, W, W, W, W, W, W, W],
+      [W, W, W, W, W, W, W, W, W],
       [W, S, E, E, H, E, E, F, W],
       [W, W, W, W, W, W, W, W, W],
     ]
@@ -216,19 +216,20 @@ export const levels: Level[] = [
     id: 14,
     name: "Spiral In",
     tutorialText: "Can you solve the spiral?",
-    availableBlocks: ['MOVE_FORWARD', 'TURN_LEFT', 'WHILE_PATH', 'LOOP'],
+    availableBlocks: ['MOVE_FORWARD', 'TURN_RIGHT', 'WHILE_PATH', 'LOOP'],
     minStars: 0,
     bestBlockCount: 4,
     start: { x: 1, y: 1, dir: 'RIGHT' },
     grid: [
-      [W, W, W, W, W, W, W, W],
-      [W, S, E, E, E, E, E, W],
-      [W, W, W, W, W, W, E, W],
-      [W, E, E, E, E, W, E, W],
-      [W, E, F, W, E, W, E, W],
-      [W, E, W, W, E, W, E, W],
-      [W, E, E, E, E, W, E, W],
-      [W, W, W, W, W, W, W, W],
+      [W, W, W, W, W, W, W, W, W],
+      [W, S, E, E, E, E, E, E, W],
+      [W, W, W, W, W, W, W, E, W],
+      [W, E, E, E, E, E, W, E, W],
+      [W, E, W, W, W, E, W, E, W],
+      [W, E, W, F, E, E, W, E, W],
+      [W, E, W, W, W, W, W, E, W],
+      [W, E, E, E, E, E, E, E, W],
+      [W, W, W, W, W, W, W, W, W],
     ]
   },
   {
