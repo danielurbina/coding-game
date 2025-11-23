@@ -69,7 +69,7 @@ function App() {
   };
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-background text-gray-800 font-sans overflow-hidden">
+    <div className="h-dvh w-screen flex flex-col bg-background text-gray-800 font-sans overflow-hidden">
       <GameLoop />
       <Overlay />
 
@@ -122,7 +122,7 @@ function App() {
         </div>
 
         {/* Code Area */}
-        <div className="flex-1 bg-white flex flex-col border-l border-gray-200 shadow-xl z-10 max-h-[50vh] md:max-h-full md:w-[400px] md:flex-none">
+        <div className="flex-1 bg-white flex flex-col border-l border-gray-200 shadow-xl z-10 max-h-[50dvh] md:max-h-full md:w-[400px] md:flex-none">
             <div className="p-3 bg-gray-50 border-b border-gray-200 font-bold text-gray-500 text-sm flex justify-between items-center h-12 gap-2 overflow-hidden">
                 <div className="flex items-center gap-2 shrink-0">
                     {maxStars > 0 && (
