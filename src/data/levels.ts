@@ -70,14 +70,14 @@ export const levels: Level[] = [
   {
     id: 5,
     name: "Jump Around",
-    tutorialText: "Use Jump to hop over walls or holes!",
+    tutorialText: "Use Jump to hop over holes!",
     availableBlocks: ['MOVE_FORWARD', 'JUMP', 'TURN_RIGHT'],
     minStars: 0,
     bestBlockCount: 2,
     start: { x: 1, y: 1, dir: 'RIGHT' },
     grid: [
       [W, W, W, W, W, W],
-      [W, S, W, E, F, W],
+      [W, S, H, E, F, W],
       [W, W, W, W, W, W],
     ]
   },
@@ -162,7 +162,7 @@ export const levels: Level[] = [
       [W, E, E, E, E, W, E, W],
       [W, E, W, W, W, W, E, W],
       [W, E, W, F, W, W, E, W],
-      [W, S, W, E, E, E, E, W],
+      [W, S, H, E, E, E, E, W],
       [W, W, W, W, W, W, W, W],
     ]
   },
