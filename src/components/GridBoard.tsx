@@ -6,6 +6,7 @@ import type { TileType, Direction } from '../types/game';
 import { Key, Lock, DoorOpen, Trees, Waves, Cat, Dog, Rabbit, Bug, Bird, Fish, Ghost, Zap } from 'lucide-react';
 import { clsx } from 'clsx';
 import { getMonsterType } from '../utils/pokemonHelpers';
+import playerImage from '../assets/player.png';
 
 // const TILE_SIZE = 48; // Pixels - unused, using CSS Grid
 
@@ -224,28 +225,11 @@ const Robot = ({ dir, animation }: { dir: Direction, animation?: 'IDLE' | 'DENY'
             }}
             className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 flex items-center justify-center relative z-20"
         >
-            {/* Ears */}
-            <div className="absolute -top-1 sm:-top-2 left-0 w-2 h-3 sm:w-2.5 sm:h-4 bg-yellow-400 rounded-t-full border border-yellow-600 -rotate-12 z-0" />
-            <div className="absolute -top-1 sm:-top-2 right-0 w-2 h-3 sm:w-2.5 sm:h-4 bg-yellow-400 rounded-t-full border border-yellow-600 rotate-12 z-0" />
-            
-            {/* Body */}
-            <div className="w-full h-full bg-yellow-400 rounded-lg shadow-md border-2 border-yellow-600 flex items-center justify-center relative z-10 overflow-hidden">
-                {/* Cheeks */}
-                <div className="absolute top-1/2 left-0.5 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-500 rounded-full opacity-80" />
-                <div className="absolute top-1/2 right-0.5 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-500 rounded-full opacity-80" />
-
-                {/* Eyes */}
-                <div className="absolute top-1.5 sm:top-2 flex gap-1 sm:gap-2">
-                    <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-black rounded-full" />
-                    <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-black rounded-full" />
-                </div>
-                
-                {/* Nose/Mouth */}
-                 <div className="absolute top-3 sm:top-4 w-1 h-0.5 bg-black/50 rounded-full" />
-            </div>
-            
-            {/* Tail (Simple) */}
-            <div className="absolute -bottom-1 -left-1 w-2 h-4 sm:w-3 sm:h-6 bg-yellow-500 border border-yellow-700 -rotate-45 -z-10 skew-x-12" />
+            <img 
+                src={playerImage} 
+                alt="Player" 
+                className="w-full h-full object-contain"
+            />
         </motion.div>
     );
 };
